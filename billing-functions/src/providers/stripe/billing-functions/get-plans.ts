@@ -1,6 +1,7 @@
 export default async function getPlans(stripeClient) {
   const prices = await stripeClient.prices.list({
     expand: ["data.product"],
+    active: true,
   });
 
   return prices?.data?.map((price: Stripe.Price) => {
@@ -10,8 +11,7 @@ export default async function getPlans(stripeClient) {
       currency: price.currency,
       price: price.unit_amount,
       id: price.id,
-      interval:
-        price.type === "one_time" ? "one_time" : price.recurring?.interval,
+      interval: price.type === "one_time" ? "one_time" : price.recurring?.interval,
     };
   });
 }
