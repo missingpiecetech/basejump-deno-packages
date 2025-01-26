@@ -1,18 +1,25 @@
-export default async function getPlans(stripeClient) {
-  const products = await stripeClient.products.list({});
-  return products;
-
-  // return prices?.data
-  //   ?.map((price: Stripe.Price) => {
-  //     return {
-  //       product_name: price.product.name,
-  //       product_description: price.product.description,
-  //       active: price.product.active,
-  //       currency: price.currency,
-  //       price: price.unit_amount,
-  //       id: price.id,
-  //       interval: price.type === "one_time" ? "one_time" : price.recurring?.interval,
-  //     };
-  //   })
-  //   .filter((price) => price.active);
+export default async function getPlans(stripeClient, productName = null) {
+  let { data: products } = await stripeClient.products.list({ active: true });
+  if (productName) products = products.filter((product) => product.name.includes(productName));
+  return await Promise.all(
+    products.map(async (product) => {
+      const prices = await stripeClient.prices.list({ product: product.id, active: true });
+      return {
+        id: product.id,
+        active: product.active,
+        default_price: product.default_price,
+        description: product.description,
+        features: product.features,
+        images: product.images,
+        name: product.name,
+        prices: prices.data.map((price) => ({
+          id: price.id,
+          active: price.active,
+          currency: price.currency,
+          recurring: price.recurring,
+          unit_amount: price.unit_amount,
+        })),
+      };
+    })
+  );
 }
