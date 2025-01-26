@@ -51,31 +51,37 @@ export function stripeFunctionHandler({ stripeClient, defaultTrialDays, defaultP
 
       const trialEnd = defaultTrialDays ? Math.floor(Date.now() / 1000) + defaultTrialDays * 24 * 60 * 60 : undefined;
 
-      const session = await stripeClient.checkout.sessions.create({
-        customer: customer.id,
-        subscription_data: {
-          trial_end: trialEnd,
-          trial_settings: {
-            end_behavior: {
-              missing_payment_method: "create_invoice", // subscription will go past_due if no payment method is added in time
+      console.log("trialEnd", trialEnd);
+      let session;
+      try {
+        session = await stripeClient.checkout.sessions.create({
+          customer: customer.id,
+          subscription_data: {
+            trial_end: trialEnd,
+            trial_settings: {
+              end_behavior: {
+                missing_payment_method: "create_invoice", // subscription will go past_due if no payment method is added in time
+              },
             },
+            metadata: {
+              basejump_account_id: accountId,
+            },
+            items: [
+              {
+                plan: planId || defaultPlanId,
+              },
+            ],
           },
+          mode: "subscription",
+          success_url: successUrl,
+          cancel_url: cancelUrl,
           metadata: {
             basejump_account_id: accountId,
           },
-          items: [
-            {
-              plan: planId || defaultPlanId,
-            },
-          ],
-        },
-        mode: "subscription",
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-        metadata: {
-          basejump_account_id: accountId,
-        },
-      });
+        });
+      } catch (e) {
+        console.log("ERROR", e);
+      }
 
       return {
         url: session.url,
