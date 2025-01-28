@@ -13,8 +13,8 @@ type Props = {
 export function stripeFunctionHandler({ stripeClient, defaultTrialDays, defaultPlanId }: Props): BILLING_FUNCTION_WRAPPER_HANDLERS {
   return {
     provider: "stripe",
-    async getPlans({ productName }) {
-      return getPlans(stripeClient, productName);
+    async getPlans({ product_name }) {
+      return getPlans(stripeClient, product_name);
     },
 
     async getBillingStatus({ accountId, customerId, billingEmail, defaultTrialDays, defaultPlanId, subscriptionId }) {
@@ -51,11 +51,11 @@ export function stripeFunctionHandler({ stripeClient, defaultTrialDays, defaultP
 
       const trialEnd = defaultTrialDays ? Math.floor(Date.now() / 1000) + defaultTrialDays * 24 * 60 * 60 : undefined;
 
-      console.log("trialEnd", trialEnd);
       let session;
       try {
         session = await stripeClient.checkout.sessions.create({
           customer: customer.id,
+          allow_promotion_codes: true,
           subscription_data: {
             trial_end: trialEnd,
             trial_settings: {
@@ -80,7 +80,7 @@ export function stripeFunctionHandler({ stripeClient, defaultTrialDays, defaultP
           },
         });
       } catch (e) {
-        console.log("ERROR", e);
+        console.error("ERROR", e);
       }
 
       return {

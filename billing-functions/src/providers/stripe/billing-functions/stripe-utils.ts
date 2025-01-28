@@ -22,16 +22,18 @@ export function stripeSubscriptionToBasejumpSubscription(
   subscription: Stripe.Subscription
 ): BASEJUMP_BILLING_DATA_UPSERT["subscription"] {
   const plan = {
-    id: "price_1QlZJNIJEYSvGIH2UQK9B2Dp",
-    active: true,
-    amount: 1499,
-    created: 1737911273,
-    currency: "usd",
-    interval: "month",
-    interval_count: 1,
-    product: "prod_Ret5trWAdU3ofd",
-    trial_period_days: null,
-    usage_type: "licensed",
+    id: subscription.plan.id,
+    active: subscription.plan.active,
+    amount: subscription.plan.amount,
+    created: subscription.created ? unixToIso(subscription.created) : null,
+    current_period_start: subscription.current_period_start ? unixToIso(subscription.current_period_start) : null,
+    current_period_end: subscription.current_period_end ? unixToIso(subscription.current_period_end) : null,
+    cancel_at_period_end: subscription.cancel_at_period_end,
+    currency: subscription.plan.currency,
+    interval: subscription.plan.interval,
+    interval_count: subscription.plan.interval_count,
+    product: subscription.plan.product,
+    trial_period_days: subscription.plan.trial_period_days,
   };
   return {
     id: subscription.id,

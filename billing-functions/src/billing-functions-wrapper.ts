@@ -98,7 +98,7 @@ export function billingFunctionsWrapper(
     try {
       switch (body.action) {
         case "get_plans":
-          const plans = await handlers.getPlans({ productName: body.args.product_name });
+          const plans = await handlers.getPlans({ product_name: body.args.product_name });
           return new Response(JSON.stringify(plans), {
             headers: {
               ...corsHeaders,
@@ -192,7 +192,7 @@ export function billingFunctionsWrapper(
           return errorResponse("Invalid action");
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return errorResponse("Internal server error", 500);
     }
   };

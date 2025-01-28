@@ -1,4 +1,4 @@
-export default async function getPlans(stripeClient, productName = null) {
+export default async function getPlans(stripeClient, productName = "") {
   let { data: products } = await stripeClient.products.list({ active: true });
   if (productName) products = products.filter((product) => product.name.includes(productName));
   return await Promise.all(
